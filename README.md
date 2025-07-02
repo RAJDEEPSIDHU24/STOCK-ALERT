@@ -43,7 +43,7 @@ Database:
 * Google Cloud Firestore: A flexible, scalable NoSQL cloud database for storing user accounts and preferences.
 Setup and install it 
 
-4. Configure Environment Variables
+------------------------- Configure Environment Variables------------------------------------------------------
 
 
 * Create a file named .env in the root of your project directory (the same level as app.py) and add the following, replacing the placeholder values:
@@ -58,7 +58,7 @@ FIREBASE_API_KEY: The apiKey you copied in previous step
 
 FLASK_SECRET_KEY: Generate a strong, random string for this (e.g., import os; print(os.urandom(24).hex()) in a Python console). This is important  for Flask session security.
 
-5. Project Structure
+-------------------Project Structure-------------------------------------------
 
 
 Ensure your project directory looks like this:
@@ -81,7 +81,7 @@ your-project-directory/
   
   
 
-6. Run the Application
+------------------------. Run the Application--------------------------------------
 From your terminal, navigate to the project directory and run the Flask application:
 
 python app.py
