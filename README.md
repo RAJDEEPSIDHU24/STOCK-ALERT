@@ -5,14 +5,13 @@ Even if  you're a seasoned investor or just curious about stock trends, StockAle
 
 ------------------IMAGES-----------------------------------------------------------------------
 ![PROJECT IMAGE 0](https://github.com/user-attachments/assets/6b88e259-e0bc-4bae-8df7-1c9b2c9cff47)
-![PROJECT IMAGE 8](https://github.com/user-attachments/assets/9c23bcd2-c4fb-4883-853c-e8309513d1bb)
-![PROJECT IMAGE 7](https://github.com/user-attachments/assets/11da492e-5cdb-4e57-a42d-773b750d6b06)
-![PROJECT IMAGE 6](https://github.com/user-attachments/assets/5b169919-fb92-4d0d-9a40-09a319959977)
-![PROJECT IMAGE 5](https://github.com/user-attachments/assets/bbc6b48f-1f08-4dea-be16-ca83aa00754c)
-![PROJECT IMAGE 4](https://github.com/user-attachments/assets/4a42491c-5ecc-457a-ad5a-8f68432037bb)
-![PROJECT IMAGE 3](https://github.com/user-attachments/assets/f4cb9ff5-6f1e-4f33-8786-f25c6634b2a7)
-![PROJECT IMAGE 2](https://github.com/user-attachments/assets/c40446b9-f91d-4f85-ad37-290223235feb)
 ![PROJECT IMAGE 1](https://github.com/user-attachments/assets/2c1ed68c-418e-4a56-8f13-38b2b085063c)
+![PROJECT IMAGE 2](https://github.com/user-attachments/assets/c40446b9-f91d-4f85-ad37-290223235feb)
+![PROJECT IMAGE 3](https://github.com/user-attachments/assets/f4cb9ff5-6f1e-4f33-8786-f25c6634b2a7)
+![PROJECT IMAGE 4](https://github.com/user-attachments/assets/4a42491c-5ecc-457a-ad5a-8f68432037bb)
+![PROJECT IMAGE 5](https://github.com/user-attachments/assets/bbc6b48f-1f08-4dea-be16-ca83aa00754c)
+![PROJECT IMAGE 6](https://github.com/user-attachments/assets/5b169919-fb92-4d0d-9a40-09a319959977)
+![PROJECT IMAGE 7](https://github.com/user-attachments/assets/11da492e-5cdb-4e57-a42d-773b750d6b06)
 
 
 
