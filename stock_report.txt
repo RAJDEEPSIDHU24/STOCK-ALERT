@@ -1,0 +1,14 @@
+
+
+⚪ Tata Motors: Minor change 0.07%
+📊 Chart saved: charts\TATAMOTORS_chart.png
+
+⚪ Kotak Mahindra Bank: Minor change 0.33%
+📊 Chart saved: charts\KOTAKBANK_chart.png
+
+⚪ TCS: Minor change 0.43%
+
+⚠️ Not enough data for Kotak Mahindra Bank between 2025-06-30 and 2025-07-01.
+
+⚪ Kotak Mahindra Bank: Minor change 0.33%
+

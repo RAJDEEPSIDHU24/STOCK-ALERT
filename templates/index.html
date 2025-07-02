@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Analysis Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; 
+            color: #e2e8f0; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        body.light-mode {
+            background-color: #f7fafc; 
+            color: #2d3748; 
+        }
+        .container {
+            max-width: 1200px;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1); 
+        }
+        body.light-mode input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0); 
+        }
+        .input-dark {
+            background-color: #4a5568; 
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        .input-light {
+            background-color: #edf2f7; 
+            border-color: #cbd5e0;
+            color: #2d3748;
+        }
+        .bg-dark-card {
+            background-color: #2d3748;
+        }
+        .bg-light-card {
+            background-color: #ffffff;
+        }
+        .text-dark-primary {
+            color: #e2e8f0;
+        }
+        .text-light-primary {
+            color: #2d3748;
+        }
+        .text-dark-secondary {
+            color: #a0aec0;
+        }
+        .text-light-secondary {
+            color: #718096;
+        }
+    </style>
+</head>
+<body class="p-4 {{ user_settings.theme if user_settings else 'dark' }}-mode">
+    <div class="container mx-auto bg-dark-card p-8 rounded-lg shadow-xl w-full transition-colors duration-300 ease-in-out">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-indigo-400">📈 Stock Analysis Dashboard</h1>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-dark-secondary">Logged in as: {{ user_email }}</span>
+                <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md">Logout</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4">
+                    {% for category, message in messages %}
+                        <div class="p-3 rounded-md text-sm {% if category == 'danger' %}bg-red-500{% elif category == 'success' %}bg-green-500{% else %}bg-blue-500{% endif %} text-white mb-2">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Main Content Area: Form and Analysis/Logo side-by-side, Chart below -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div class="lg:col-span-1 bg-dark-card p-6 rounded-lg shadow-inner transition-colors duration-300 ease-in-out">
+                <h2 class="text-xl font-semibold mb-4 text-indigo-300">Analyze Stock</h2>
+                <form id="stock-analysis-form" class="space-y-4">
+                    <div>
+                        <label for="stock_symbol" class="block text-dark-secondary text-sm font-bold mb-2">Select Company:</label>
+                        <div class="relative">
+                            <select id="stock_symbol" name="stock_symbol" class="block appearance-none w-full input-dark border rounded-lg py-3 px-4 pr-8 leading-tight focus:outline-none focus:border-indigo-500 transition duration-200">
+                                {% for symbol, name in companies %}
+                                    <option value="{{ symbol }}" {% if selected_symbol == symbol %}selected{% endif %}>
+                                        {{ name }} ({{ symbol }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="from_date" class="block text-dark-secondary text-sm font-bold mb-2">From Date (YYYY-MM-DD):</label>
+                        <input type="date" id="from_date" name="from_date" value="{{ from_date }}"
+                               class="shadow appearance-none border rounded-lg w-full py-3 px-3 input-dark leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500 transition duration-200">
+                    </div>
+                    <div>
+                        <label for="to_date" class="block text-dark-secondary text-sm font-bold mb-2">To Date (YYYY-MM-DD):</label>
+                        <input type="date" id="to_date" name="to_date" value="{{ to_date }}"
+                               class="shadow appearance-none border rounded-lg w-full py-3 px-3 input-dark leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500 transition duration-200">
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105 shadow-md">
+                        Analyze Stock
+                    </button>
+                </form>
+            </div>
+
+            
+            <div class="lg:col-span-1 bg-dark-card p-6 rounded-lg shadow-inner transition-colors duration-300 ease-in-out">
+                <div class="flex items-center mb-4">
+                    
+                    <img id="company-logo" src="https://placehold.co/50x50/334155/E2E8F0?text=Logo" alt="Company Logo" class="w-12 h-12 rounded-full mr-4 border border-gray-600">
+                    <h2 id="stock-name-display" class="text-2xl font-semibold text-indigo-300">Select a Stock to Analyze</h2>
+                </div>
+                <div id="analysis-result" class="bg-gray-700 p-4 rounded-lg mb-6 text-dark-primary text-sm whitespace-pre-wrap">
+                    No analysis performed yet.
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="w-full bg-dark-card p-6 rounded-lg shadow-inner transition-colors duration-300 ease-in-out mt-8">
+            <h2 class="text-xl font-semibold mb-4 text-indigo-300">Stock Chart</h2>
+           
+            <div id="stock-chart" class="w-full h-96 bg-gray-700 rounded-lg text-dark-secondary">
+               
+            </div>
+        </div>
+        
+        <div class="bg-dark-card p-6 rounded-lg shadow-xl transition-colors duration-300 ease-in-out mt-8">
+            <h2 class="text-xl font-semibold mb-4 text-indigo-300">User Preferences</h2>
+            <form action="/update_preferences" method="POST" class="space-y-4">
+                <!-- Theme Toggle -->
+                <div>
+                    <label class="block text-dark-secondary text-sm font-bold mb-2">Theme:</label>
+                    <div class="flex items-center space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="theme" value="dark" class="form-radio text-indigo-600"
+                                   {% if user_settings.theme == 'dark' or user_settings.theme == None %}checked{% endif %}>
+                            <span class="ml-2 text-dark-primary">Dark Mode</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="theme" value="light" class="form-radio text-indigo-600"
+                                   {% if user_settings.theme == 'light' %}checked{% endif %}>
+                            <span class="ml-2 text-dark-primary">Light Mode</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Email Alerts -->
+                <div>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="email_alerts_enabled" name="email_alerts_enabled" class="form-checkbox text-indigo-600"
+                               {% if user_settings.email_alerts_enabled %}checked{% endif %}>
+                        <span class="ml-2 text-dark-primary text-sm font-bold">Enable Email Alerts</span>
+                    </label>
+                    <p class="text-dark-secondary text-xs mt-1">
+                        An email will be sent if the stock price changes by 5% or more.
+                    </p>
+                </div>
+
+                <div id="email-settings-fields" class="space-y-4 {% if not user_settings.email_alerts_enabled %}hidden{% endif %}">
+                    <div>
+                        <label for="alert_email" class="block text-dark-secondary text-sm font-bold mb-2">Alert Email Address:</label>
+                        <input type="email" id="alert_email" name="alert_email"
+                               value="{{ user_settings.alert_email if user_settings.alert_email else '' }}"
+                               class="shadow appearance-none border rounded-lg w-full py-3 px-3 input-dark leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500 transition duration-200"
+                               placeholder="your.email@example.com">
+                    </div>
+                    <div>
+                        <label for="email_password" class="block text-dark-secondary text-sm font-bold mb-2">Email App Password/Password:</label>
+                        <input type="password" id="email_password" name="email_password"
+                               class="shadow appearance-none border rounded-lg w-full py-3 px-3 input-dark leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500 transition duration-200"
+                               placeholder="••••••••">
+                        <p class="text-dark-secondary text-xs mt-1">
+                            For Gmail, use an <a href="https://support.google.com/accounts/answer/185833?hl=en" target="_blank" class="text-blue-400 hover:underline">App Password</a>.
+                            <span class="font-bold text-red-400">Warning: Storing your main email password is not recommended.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105 shadow-md">
+                    Save Preferences
+                </button>
+            </form>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="/cli_run" class="inline-block bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md">
+                Run CLI Demo
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // --- Dark/Light Mode Toggle  ---
+        const themeRadios = document.querySelectorAll('input[name="theme"]');
+        const body = document.body;
+        const container = document.querySelector('.container');
+        const analysisResult = document.getElementById('analysis-result');
+        const stockChartDiv = document.getElementById('stock-chart');
+        const inputs = document.querySelectorAll('input[type="date"], select, input[type="email"], input[type="password"]');
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                body.classList.add('light-mode');
+                body.classList.remove('dark-mode');
+                container.classList.remove('bg-dark-card');
+                container.classList.add('bg-light-card');
+                analysisResult.classList.remove('bg-gray-700', 'text-dark-primary');
+                analysisResult.classList.add('bg-gray-100', 'text-light-primary');
+                stockChartDiv.classList.remove('bg-gray-700', 'text-dark-secondary');
+                stockChartDiv.classList.add('bg-gray-100', 'text-light-secondary');
+                inputs.forEach(input => {
+                    input.classList.remove('input-dark');
+                    input.classList.add('input-light');
+                });
+                document.querySelectorAll('.text-dark-secondary').forEach(el => {
+                    el.classList.remove('text-dark-secondary');
+                    el.classList.add('text-light-secondary');
+                });
+                document.querySelectorAll('.text-dark-primary').forEach(el => {
+                    el.classList.remove('text-dark-primary');
+                    el.classList.add('text-light-primary');
+                });
+            } else {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                container.classList.remove('bg-light-card');
+                container.classList.add('bg-dark-card');
+                analysisResult.classList.remove('bg-gray-100', 'text-light-primary');
+                analysisResult.classList.add('bg-gray-700', 'text-dark-primary');
+                stockChartDiv.classList.remove('bg-gray-100', 'text-light-secondary');
+                stockChartDiv.classList.add('bg-gray-700', 'text-dark-secondary');
+                inputs.forEach(input => {
+                    input.classList.remove('input-light');
+                    input.classList.add('input-dark');
+                });
+                document.querySelectorAll('.text-light-secondary').forEach(el => {
+                    el.classList.remove('text-light-secondary');
+                    el.classList.add('text-dark-secondary');
+                });
+                document.querySelectorAll('.text-light-primary').forEach(el => {
+                    el.classList.remove('text-light-primary');
+                    el.classList.add('text-dark-primary');
+                });
+            }
+        }
+
+
+        const initialTheme = "{{ user_settings.theme if user_settings else 'dark' }}";
+        applyTheme(initialTheme);
+
+        themeRadios.forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                applyTheme(event.target.value);
+            });
+        });
+
+        // --- Email Settings Toggle ---
+        const emailAlertsCheckbox = document.getElementById('email_alerts_enabled');
+        const emailSettingsFields = document.getElementById('email-settings-fields');
+
+        emailAlertsCheckbox.addEventListener('change', () => {
+            if (emailAlertsCheckbox.checked) {
+                emailSettingsFields.classList.remove('hidden');
+            } else {
+                emailSettingsFields.classList.add('hidden');
+            }
+        });
+
+        // --- Stock Analysis Form Submission (AJAX) ---
+        const stockAnalysisForm = document.getElementById('stock-analysis-form');
+        const analysisResultDiv = document.getElementById('analysis-result');
+        const stockChartContainer = document.getElementById('stock-chart');
+        const stockNameDisplay = document.getElementById('stock-name-display');
+        const companyLogo = document.getElementById('company-logo');
+        const companyLogosMap = JSON.parse('{{ company_logos | tojson | safe }}');
+
+        stockAnalysisForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); 
+            analysisResultDiv.innerHTML = '<p>Analyzing stock... Please wait.</p>';
+            stockChartContainer.innerHTML = '<p>Loading chart...</p>';
+            stockNameDisplay.textContent = 'Analyzing...';
+           
+            companyLogo.src = 'https://placehold.co/50x50/334155/E2E8F0?text=Loading'; 
+
+            const formData = new FormData(stockAnalysisForm);
+            
+            try {
+                const response = await fetch('/analyze_stock', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                // Update analysis result message
+                analysisResultDiv.innerHTML = data.message;
+                // Update stock name display
+                stockNameDisplay.textContent = data.stock_name || 'Stock Analysis';
+
+             
+                if (data.symbol && companyLogosMap[data.symbol]) {
+                    companyLogo.src = companyLogosMap[data.symbol];
+                } else {
+                    
+                    companyLogo.src = 'https://placehold.co/50x50/334155/E2E8F0?text=Comp'; 
+                }
+
+                
+                if (data.chart_data) {
+                    renderPlotlyChart(data.chart_data, data.stock_name);
+                } else {
+                    stockChartContainer.innerHTML = '<p class="text-red-400">Chart could not be generated due to data issues.</p>';
+                }
+            } catch (error) {
+                console.error("Error during stock analysis fetch:", error);
+                analysisResultDiv.innerHTML = `<p class="text-red-400">An error occurred: ${error.message}</p>`;
+                stockChartContainer.innerHTML = '<p class="text-red-400">Error loading chart.</p>';
+                stockNameDisplay.textContent = 'Error';
+                companyLogo.src = 'https://placehold.co/50x50/334155/E2E8F0?text=Error'; 
+            }
+        });
+
+        // --- Plotly Charting Function ---------------------
+        function renderPlotlyChart(chartData, stockName) {
+            const trace = {
+                x: chartData.dates,
+                open: chartData.open,
+                high: chartData.high,
+                low: chartData.low,
+                close: chartData.close,
+                type: 'candlestick',
+                name: stockName,
+                increasing: {line: {color: '#17BECF'}}, 
+                decreasing: {line: {color: '#7F7F7F'}}, 
+                line: {width: 1}
+            };
+
+            const layout = {
+                title: {
+                    text: `${stockName} - Price History`,
+                    font: {
+                        color: body.classList.contains('light-mode') ? '#2d3748' : '#e2e8f0' 
+                    }
+                },
+                xaxis: {
+                    type: 'date',
+                    rangeslider: { visible: false },
+                    title: 'Date',
+                    tickfont: {
+                        color: body.classList.contains('light-mode') ? '#718096' : '#a0aec0' 
+                    },
+                    gridcolor: body.classList.contains('light-mode') ? '#e2e8f0' : '#4a5568'
+                },
+                yaxis: {
+                    title: 'Price',
+                    tickfont: {
+                        color: body.classList.contains('light-mode') ? '#718096' : '#a0aec0' 
+                    },
+                    gridcolor: body.classList.contains('light-mode') ? '#e2e8f0' : '#4a5568'
+                },
+                plot_bgcolor: body.classList.contains('light-mode') ? '#ffffff' : '#2d3748', 
+                paper_bgcolor: body.classList.contains('light-mode') ? '#ffffff' : '#2d3748', 
+                font: {
+                    color: body.classList.contains('light-mode') ? '#2d3748' : '#e2e8f0' 
+                },
+                margin: {
+                    t: 50,
+                    b: 50,
+                    l: 50,
+                    r: 50
+                },
+                hovermode: 'x unified', 
+                dragmode: 'zoom', 
+                modebar: {
+                    bgcolor: body.classList.contains('light-mode') ? '#edf2f7' : '#4a5568',
+                    color: body.classList.contains('light-mode') ? '#2d3748' : '#e2e8f0',
+                    activecolor: body.classList.contains('light-mode') ? '#4299e1' : '#667eea'
+                }
+            };
+
+            const config = {
+                responsive: true, 
+                displayModeBar: true, 
+                modeBarButtonsToRemove: ['lasso2d', 'select2d'], 
+                displaylogo: false 
+            };
+
+            Plotly.newPlot('stock-chart', [trace], layout, config);
+        }
+
+      
+        document.getElementById('from_date').value = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 10);
+        document.getElementById('to_date').value = new Date().toISOString().slice(0, 10);
+
+    </script>
+</body>
+</html>
