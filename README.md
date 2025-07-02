@@ -95,6 +95,8 @@ your-project-directory/
   
 
 ------------------------. Run the Application--------------------------------------
+
+
 From your terminal, navigate to the project directory and run the Flask application:
 
 python app.py
@@ -102,6 +104,8 @@ python app.py
 The application should start, and you'll see a message indicating the URL (e.g., http://127.0.0.1:5000  )
 
  ----------------------------------Usage--------------------------------------------------------
+
+ 
 
 1. Access the App: Open your web browser and go to the URL provided by Flask (e.g., http://127.0.0.1:5000/).
 2. Register/Login: You'll be redirected to the login page. If you're a new user, register an account.
@@ -115,5 +119,7 @@ The application should start, and you'll see a message indicating the URL (e.g.,
 
 
 ----------------------------------- Contribution :---------------------------------------------------
+
+
 Feel free to fork this repository, open issues, or submit pull requests. Any contributions are welcome!
 
