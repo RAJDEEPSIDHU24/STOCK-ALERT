@@ -1,7 +1,7 @@
 **📈 StockAlert:  Personalized Stock Analysis Dashboard**
 
 **Welcome to  my StockAlert project , a dynamic web application designed to help you keep an eye on the Indian stock market. This project offers a clean, interactive interface to analyze stock performance, track significant price changes, and even receive email alerts for big market movements.
-Even if  you're a seasoned investor or just curious about stock trends, StockPulse provides a user-friendly experience with powerful features.**
+Even if  you're a seasoned investor or just curious about stock trends, StockAlert provides a user-friendly experience with powerful features.**
 
 ------------------IMAGES-----------------------------------------------------------------------
 ![PROJECT IMAGE 0](https://github.com/user-attachments/assets/6b88e259-e0bc-4bae-8df7-1c9b2c9cff47)
